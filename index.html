@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>NoteApp</title>
+    <!-- Add Bootstrap CSS link here -->
+    <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <!-- Add Font Awesome CSS link here -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=AR+One+Sans&display=swap" rel="stylesheet">
+</head>
+
+<style>
+  body{
+    font-family: 'AR One Sans', sans-serif;
+  }
+</style>
+<body>
+    <div class="container">
+        <h2>NoteApp</h2>
+        <hr>
+        
+        <!-- Form for adding data -->
+        <form id="addForm">
+            <div class="form-group">
+                <label for="name">Title</label>
+                <input type="text" class="form-control" id="name">
+            </div>
+            <div class="form-group">
+                <label for="email">Thoughts</label>
+                <textarea type="text" class="form-control" id="email">
+                </textarea>
+            </div>
+            
+            <button type="submit" class="btn btn-primary"><i class="fas fa-plus"></i> Add Data</button>
+        </form>
+
+        <!-- Display data -->
+        <hr>
+        <center>
+          All prev thoughts.
+        </center>
+        <div id="dataList" style="margin:10px">
+            <!-- Data will be displayed here -->
+        </div>
+        <div id="loader" class="text-center">
+
+            <i class="fas fa-fan fa-spin fa-4x"></i>
+                      
+        </div>
+    </div>
+
+    <!-- Add Firebase and Bootstrap JS scripts here -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <!-- Initialize Firebase and add JavaScript code -->
+    <script>
+        // Initialize Firebase with your config
+        const firebaseConfig = {
+    apiKey: "AIzaSyD4NhKzLB1hgI7KVESI39ZBuL-7yi13QiI",
+    authDomain: "notes-3-8b166.firebaseapp.com",
+    projectId: "notes-3-8b166",
+    storageBucket: "notes-3-8b166.appspot.com",
+    messagingSenderId: "938087077523",
+    appId: "1:938087077523:web:308ab8de28939ee6cfdf66",
+    measurementId: "G-6RD8TCCW4L"
+  };
+        firebase.initializeApp(firebaseConfig);
+
+        // Reference to Firebase database
+        var database = firebase.database();
+
+        // Function to add data to Firebase
+        function addData(name, email) {
+            var newDataRef = database.ref('data').push();
+            newDataRef.set({
+                name: name,
+                email: email,
+                createdAt: firebase.database.ServerValue.TIMESTAMP
+            });
+            window.location.reload();
+        }
+
+        // Function to display data from Firebase
+        function displayData() {
+            var dataList = document.getElementById('dataList');
+            var loader = document.getElementById('loader');
+
+            // Hide the loader after 2 seconds (simulating a delay)
+            setTimeout(function() {
+                loader.style.display = 'none';
+            }, 2000);
+
+            database.ref('data').on('child_added', function(snapshot) {
+                var data = snapshot.val();
+                var key = snapshot.key;
+                var createdAt = new Date(data.createdAt).toLocaleString()
+                var card = document.createElement('div');
+                card.className = 'card mb-3';
+                card.innerHTML = '<div class="card-body">' +
+                                    '<h3 class="card-title"> ' + data.name + '</h3>' +
+                                    '<p class="card-text">' + data.email + '</p>' +'<span class="badge badge-info">Created At: ' + createdAt + '</span><br><br>'+
+                                    '<button class="btn btn-danger" onclick="deleteData(\'' + key + '\')">'+ '<i class="fas fa-trash-alt"></i> Kick out' +'</button>' + '</div>';
+
+                dataList.appendChild(card);
+            });
+        }
+
+        // Function to delete data from Firebase
+        function deleteData(key) {
+            database.ref('data').child(key).remove();
+            window.location.reload();
+        }
+
+        // Add event listener for the form submission
+        document.getElementById('addForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            var name = document.getElementById('name').value;
+            var email = document.getElementById('email').value;
+            addData(name, email);
+            this.reset(); // Clear the form fields
+        });
+
+        // Initial data display
+        displayData();
+    </script>
+</body>
+</html>
