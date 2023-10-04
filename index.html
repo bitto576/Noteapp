@@ -110,7 +110,7 @@
                                     '<p class="card-text">' + data.email + '</p>' +'<span class="badge badge-info">Created At: ' + createdAt + '</span><br><br>'+
                                     '<button class="btn btn-danger" onclick="deleteData(\'' + key + '\')">'+ '<i class="fas fa-trash-alt"></i> Kick out' +'</button>' + '</div>';
 
-                dataList.appendChild(card);
+                dataList.insertBefore(card,dataList.firstChild);
             });
         }
 
